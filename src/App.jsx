@@ -4,17 +4,35 @@ import { useEffect, useState } from "react";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-import * as csvtojson from "csvtojson";
+// import * as csvtojson from "csvtojson";
+function csvToJson(csv) {
+  const lines = csv.trim().split('\n');
+  const headers = lines[0].split(',');
+  const jsonArray = [];
+
+  for (let i = 1; i < lines.length; i++) {
+    const currentLine = lines[i].split(',');
+    const jsonObject = {};
+
+    for (let j = 0; j < headers.length; j++) {
+      jsonObject[headers[j]] = currentLine[j];
+    }
+
+    jsonArray.push(jsonObject);
+  }
+
+  return jsonArray;
+}
 
 function App() {
   const [data, setData] = useState([]);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await fetch("/data.csv");
         const csvData = await response.text();
-        console.log("fetched data", csvData);
-        const jsonData = await csvtojson().fromString(csvData);
+        const jsonData = csvToJson(csvData);
 
         setData(jsonData);
       } catch (error) {
